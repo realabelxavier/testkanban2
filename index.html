@@ -7,7 +7,7 @@
 
     <!-- Web App Manifest (Data URI for PWA Installation) -->
     <link rel="manifest" id="manifestPlaceholder">
-    <meta name="theme-color" content="#090d16">
+    <meta name="theme-color" content="#090d16" id="metaThemeColor">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tarefas">
@@ -21,7 +21,7 @@
             const manifest = {
                 name: "Tarefas - Kanban PT-PT",
                 short_name: "Tarefas",
-                description: "Aplicação Kanban responsiva e sofisticada em Português Europeu",
+                description: "Aplicação Kanban responsiva e sofisticada com tema de gatos em Português Europeu",
                 start_url: window.location.href,
                 display: "standalone",
                 background_color: "#090d16",
@@ -47,8 +47,7 @@
                 extend: {
                     colors: {
                         darkBg: '#090d16',
-                        cardBg: 'rgba(23, 31, 51, 0.75)',
-                        cardBorder: 'rgba(255, 255, 255, 0.08)',
+                        lightBg: '#fdfbf7',
                         accent: '#6366f1',
                     },
                     fontFamily: {
@@ -71,10 +70,22 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark Mode Background & Pattern */
+        .dark body {
             background-color: #090d16;
-            /* Subtle Cat Pattern Background overlay */
             background-image: radial-gradient(rgba(99, 102, 241, 0.12) 1px, transparent 0),
-                              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100' fill='none' stroke='rgba(255,255,255,0.025)' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M25 45c0-10 8-18 18-18s18 8 18 18c0 12-18 25-18 25S25 57 25 45z'/%3E%3Ccircle cx='35' cy='38' r='2' fill='rgba(255,255,255,0.03)'/%3E%3Ccircle cx='51' cy='38' r='2' fill='rgba(255,255,255,0.03)'/%3E%3Cpath d='M28 32l-6-12l10 4M58 32l6-12l-10 4'/%3E%3Cpath d='M41 44q2 2 4 0'/%3E%3C/svg%3E");
+                              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100' fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M25 45c0-10 8-18 18-18s18 8 18 18c0 12-18 25-18 25S25 57 25 45z'/%3E%3Ccircle cx='35' cy='38' r='2' fill='rgba(255,255,255,0.03)'/%3E%3Ccircle cx='51' cy='38' r='2' fill='rgba(255,255,255,0.03)'/%3E%3Cpath d='M28 32l-6-12l10 4M58 32l6-12l-10 4'/%3E%3Cpath d='M41 44q2 2 4 0'/%3E%3C/svg%3E");
+            background-size: 32px 32px, 160px 160px;
+        }
+
+        /* Light Mode Background & Pattern */
+        html:not(.dark) body {
+            background-color: #fdfaf6;
+            background-image: radial-gradient(rgba(147, 51, 234, 0.08) 1px, transparent 0),
+                              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100' fill='none' stroke='rgba(147, 51, 234, 0.05)' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M25 45c0-10 8-18 18-18s18 8 18 18c0 12-18 25-18 25S25 57 25 45z'/%3E%3Ccircle cx='35' cy='38' r='2' fill='rgba(147, 51, 234, 0.05)'/%3E%3Ccircle cx='51' cy='38' r='2' fill='rgba(147, 51, 234, 0.05)'/%3E%3Cpath d='M28 32l-6-12l10 4M58 32l6-12l-10 4'/%3E%3Cpath d='M41 44q2 2 4 0'/%3E%3C/svg%3E");
             background-size: 32px 32px, 160px 160px;
         }
 
@@ -82,39 +93,57 @@
             width: 6px;
             height: 6px;
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(9, 13, 22, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
+        .dark ::-webkit-scrollbar-track { background: rgba(9, 13, 22, 0.6); }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
+        html:not(.dark) ::-webkit-scrollbar-track { background: rgba(245, 240, 230, 0.6); }
+        html:not(.dark) ::-webkit-scrollbar-thumb { background: rgba(147, 51, 234, 0.2); border-radius: 9999px; }
 
-        /* Sophisticated Glassmorphism Cards */
-        .glass-panel {
-            background: rgba(18, 26, 43, 0.65);
+        /* Dark Theme Panels */
+        .dark .glass-panel {
+            background: rgba(18, 26, 43, 0.72);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .glass-card {
-            background: rgba(26, 37, 61, 0.75);
+        .dark .glass-card {
+            background: rgba(26, 37, 61, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .glass-card:hover {
+        .dark .glass-card:hover {
             transform: translateY(-4px) scale(1.01);
-            border-color: rgba(168, 85, 247, 0.35);
-            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), 0 0 15px 0 rgba(168, 85, 247, 0.15);
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), 0 0 15px 0 rgba(168, 85, 247, 0.2);
+        }
+
+        /* Light Theme Panels */
+        html:not(.dark) .glass-panel {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 218, 207, 0.8);
+            box-shadow: 0 8px 32px 0 rgba(147, 120, 95, 0.08);
+        }
+
+        html:not(.dark) .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(235, 225, 212, 0.9);
+            box-shadow: 0 4px 16px -2px rgba(160, 140, 120, 0.12);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html:not(.dark) .glass-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(147, 51, 234, 0.4);
+            box-shadow: 0 12px 28px -4px rgba(160, 140, 120, 0.22), 0 0 15px 0 rgba(147, 51, 234, 0.1);
         }
 
         /* Drag and Drop Aesthetics */
@@ -146,13 +175,14 @@
             animation: cardSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
+        @keyframes mascotTalk {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(-4deg); }
+            75% { transform: translateY(-2px) rotate(4deg); }
         }
 
-        .cat-glow {
-            animation: pulseGlow 4s ease-in-out infinite;
+        .mascot-anim {
+            animation: mascotTalk 0.4s ease-in-out 2;
         }
 
         .task-card {
@@ -160,12 +190,12 @@
         }
     </style>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-full flex flex-col h-screen overflow-hidden selection:bg-purple-500/30 selection:text-purple-200">
+<body class="bg-lightBg dark:bg-darkBg text-slate-800 dark:text-slate-100 min-h-full flex flex-col h-screen overflow-hidden selection:bg-purple-500/30 selection:text-purple-700 dark:selection:text-purple-200">
 
     <!-- Header / Navbar -->
-    <header class="glass-panel sticky top-0 z-20 px-4 py-3 shrink-0 flex items-center justify-between gap-3 border-b border-white/10 shadow-lg">
+    <header class="glass-panel sticky top-0 z-20 px-4 py-2.5 shrink-0 flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/10 shadow-md">
         <div class="flex items-center space-x-3">
-            <div class="relative bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white p-2.5 rounded-2xl shadow-lg shadow-purple-500/20 flex items-center justify-center group">
+            <div class="relative bg-gradient-to-tr from-amber-500 via-purple-600 to-indigo-600 text-white p-2.5 rounded-2xl shadow-lg shadow-purple-500/20 flex items-center justify-center group cursor-pointer" onclick="triggerMascotPhrase()">
                 <i class="fa-solid fa-cat text-lg transition-transform duration-300 group-hover:scale-110"></i>
                 <span class="absolute -top-1 -right-1 flex h-3 w-3">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
@@ -174,56 +204,79 @@
             </div>
             <div>
                 <div class="flex items-center space-x-2">
-                    <h1 class="font-extrabold text-lg leading-tight tracking-wide bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Tarefas</h1>
-                    <span class="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">Edição Gato</span>
+                    <h1 class="font-extrabold text-lg leading-tight tracking-wide bg-gradient-to-r from-purple-700 via-indigo-600 to-amber-600 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">Tarefas</h1>
+                    <span class="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20">Edição Gato 🐾</span>
                 </div>
-                <p class="text-xs text-slate-400 hidden sm:block">Gestão de Projetos & Kanban Elegante</p>
+                <!-- Interactive Cat Mascot Speech Bubble -->
+                <div id="mascotBubble" class="text-xs text-amber-700 dark:text-amber-300 font-semibold flex items-center space-x-1 cursor-pointer transition-all hover:opacity-80" onclick="triggerMascotPhrase()">
+                    <span id="mascotIcon">🐱</span>
+                    <span id="mascotText" class="truncate max-w-[200px] sm:max-w-[320px]">Miau! Pronto para organizar as tarefas?</span>
+                </div>
             </div>
         </div>
 
-        <!-- Action Buttons -->
+        <!-- Action Controls -->
         <div class="flex items-center space-x-2">
+            <!-- Theme Switcher Selector -->
+            <div class="relative flex bg-slate-200/80 dark:bg-slate-900/80 p-1 rounded-xl border border-black/5 dark:border-white/10 text-xs">
+                <button onclick="setTheme('light')" id="theme-light" class="theme-btn px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1">
+                    <i class="fa-solid fa-sun text-amber-500"></i>
+                    <span class="hidden md:inline font-semibold">Claro</span>
+                </button>
+                <button onclick="setTheme('dark')" id="theme-dark" class="theme-btn px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1">
+                    <i class="fa-solid fa-moon text-indigo-400"></i>
+                    <span class="hidden md:inline font-semibold">Escuro</span>
+                </button>
+                <button onclick="setTheme('auto')" id="theme-auto" class="theme-btn px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1">
+                    <i class="fa-solid fa-desktop text-slate-400"></i>
+                    <span class="hidden md:inline font-semibold">Auto</span>
+                </button>
+            </div>
+
             <!-- PWA Desktop Install Button -->
-            <button id="pwaInstallBtn" onclick="installPWA()" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center shadow-lg shadow-emerald-900/30">
+            <button id="pwaInstallBtn" onclick="installPWA()" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl transition-all flex items-center shadow-md shadow-emerald-900/20">
                 <i class="fa-solid fa-desktop mr-1.5 text-xs"></i>
                 <span class="hidden sm:inline">Instalar no PC</span>
                 <span class="sm:hidden">Instalar</span>
             </button>
 
-            <button onclick="openTaskModal()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center shadow-lg shadow-purple-900/30">
+            <!-- New Task Button -->
+            <button onclick="openTaskModal()" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center shadow-md shadow-purple-900/20">
                 <i class="fa-solid fa-plus mr-1.5 text-xs"></i>
                 <span>Nova Tarefa</span>
             </button>
-            <button onclick="toggleExtraMenu()" class="text-slate-300 hover:text-white p-2.5 rounded-xl glass-panel hover:bg-white/10 active:scale-95 transition-all border border-white/10">
+
+            <!-- Menu Toggle -->
+            <button onclick="toggleExtraMenu()" class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl glass-panel active:scale-95 transition-all">
                 <i class="fa-solid fa-ellipsis-vertical text-base"></i>
             </button>
         </div>
     </header>
 
     <!-- Toolbar (Search & Filters) -->
-    <div class="glass-panel border-b border-white/5 px-4 py-2.5 shrink-0 flex flex-wrap items-center justify-between gap-3 z-10">
+    <div class="glass-panel border-b border-black/5 dark:border-white/5 px-4 py-2.5 shrink-0 flex flex-wrap items-center justify-between gap-3 z-10">
         <!-- Search Input -->
         <div class="relative flex-1 min-w-[180px]">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Pesquisar tarefas..." 
-                class="w-full bg-slate-900/80 text-slate-100 text-xs sm:text-sm pl-9 pr-8 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500/80 focus:ring-2 focus:ring-purple-500/20 transition-all">
-            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
+                class="w-full bg-white/80 dark:bg-slate-900/80 text-slate-800 dark:text-slate-100 text-xs sm:text-sm pl-9 pr-8 py-2 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all">
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white text-xs">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
         <!-- Priority Filters -->
         <div class="flex items-center space-x-1 overflow-x-auto py-0.5 text-xs">
-            <span class="text-slate-400 mr-1.5 hidden sm:inline text-xs font-medium">Prioridade:</span>
-            <button onclick="setPriorityFilter('all')" id="filter-all" class="filter-btn active-filter px-3 py-1.5 rounded-lg border border-purple-500/50 bg-purple-500/20 text-purple-200 font-semibold shadow-sm transition-all">Todas</button>
-            <button onclick="setPriorityFilter('alta')" id="filter-alta" class="filter-btn px-3 py-1.5 rounded-lg border border-white/5 bg-slate-900/60 text-slate-300 hover:border-white/20 transition-all">Alta</button>
-            <button onclick="setPriorityFilter('média')" id="filter-média" class="filter-btn px-3 py-1.5 rounded-lg border border-white/5 bg-slate-900/60 text-slate-300 hover:border-white/20 transition-all">Média</button>
-            <button onclick="setPriorityFilter('baixa')" id="filter-baixa" class="filter-btn px-3 py-1.5 rounded-lg border border-white/5 bg-slate-900/60 text-slate-300 hover:border-white/20 transition-all">Baixa</button>
+            <span class="text-slate-500 dark:text-slate-400 mr-1.5 hidden sm:inline text-xs font-medium">Prioridade:</span>
+            <button onclick="setPriorityFilter('all')" id="filter-all" class="filter-btn active-filter px-3 py-1.5 rounded-lg border border-purple-500/50 bg-purple-500/20 text-purple-700 dark:text-purple-200 font-semibold shadow-sm transition-all">Todas</button>
+            <button onclick="setPriorityFilter('alta')" id="filter-alta" class="filter-btn px-3 py-1.5 rounded-lg border border-black/5 dark:border-white/5 bg-white/50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:border-black/20 dark:hover:border-white/20 transition-all">Alta 🔥</button>
+            <button onclick="setPriorityFilter('média')" id="filter-média" class="filter-btn px-3 py-1.5 rounded-lg border border-black/5 dark:border-white/5 bg-white/50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:border-black/20 dark:hover:border-white/20 transition-all">Média ⚡</button>
+            <button onclick="setPriorityFilter('baixa')" id="filter-baixa" class="filter-btn px-3 py-1.5 rounded-lg border border-black/5 dark:border-white/5 bg-white/50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:border-black/20 dark:hover:border-white/20 transition-all">Baixa 🐾</button>
         </div>
     </div>
 
     <!-- Mobile Portrait Tab Selector -->
-    <div id="mobileTabNav" class="md:hidden glass-panel border-b border-white/5 px-2 py-2 flex space-x-1.5 overflow-x-auto shrink-0 z-10">
+    <div id="mobileTabNav" class="md:hidden glass-panel border-b border-black/5 dark:border-white/5 px-2 py-2 flex space-x-1.5 overflow-x-auto shrink-0 z-10">
         <!-- Dynamic mobile tab buttons -->
     </div>
 
@@ -235,14 +288,14 @@
     </main>
 
     <!-- Task Form Modal -->
-    <div id="taskModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-panel border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="px-5 py-4 border-b border-white/10 flex justify-between items-center bg-slate-900/80">
+    <div id="taskModal" class="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel border border-black/10 dark:border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="px-5 py-4 border-b border-black/10 dark:border-white/10 flex justify-between items-center bg-white/90 dark:bg-slate-900/80">
                 <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-paw text-purple-400 text-sm"></i>
-                    <h3 id="modalTitle" class="text-base font-bold text-slate-100">Nova Tarefa</h3>
+                    <i class="fa-solid fa-paw text-purple-600 dark:text-purple-400 text-sm"></i>
+                    <h3 id="modalTitle" class="text-base font-bold text-slate-800 dark:text-slate-100">Nova Tarefa</h3>
                 </div>
-                <button onclick="closeTaskModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
@@ -251,27 +304,27 @@
                 <input type="hidden" id="taskId">
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Título *</label>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Título *</label>
                     <input type="text" id="taskTitle" required placeholder="Ex: Desenhar ilustração do gato"
-                        class="w-full bg-slate-950/80 text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20">
+                        class="w-full bg-white dark:bg-slate-950/80 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Descrição</label>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Descrição</label>
                     <textarea id="taskDesc" rows="3" placeholder="Detalhes ou notas adicionais sobre a tarefa..."
-                        class="w-full bg-slate-950/80 text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 resize-none"></textarea>
+                        class="w-full bg-white dark:bg-slate-950/80 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 resize-none"></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Coluna</label>
-                        <select id="taskColumn" class="w-full bg-slate-950/80 text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Coluna</label>
+                        <select id="taskColumn" class="w-full bg-white dark:bg-slate-950/80 text-slate-800 dark:text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Prioridade</label>
-                        <select id="taskPriority" class="w-full bg-slate-950/80 text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Prioridade</label>
+                        <select id="taskPriority" class="w-full bg-white dark:bg-slate-950/80 text-slate-800 dark:text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500">
                             <option value="baixa">Baixa 🐾</option>
                             <option value="média" selected>Média ⚡</option>
                             <option value="alta">Alta 🔥</option>
@@ -281,22 +334,22 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Data Limite</label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Data Limite</label>
                         <input type="date" id="taskDueDate" 
-                            class="w-full bg-slate-950/80 text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500">
+                            class="w-full bg-white dark:bg-slate-950/80 text-slate-800 dark:text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Etiqueta / Tag</label>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Etiqueta / Tag</label>
                         <input type="text" id="taskTag" placeholder="Ex: Design, Dev, Bug"
-                            class="w-full bg-slate-950/80 text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-purple-500">
+                            class="w-full bg-white dark:bg-slate-950/80 text-slate-800 dark:text-slate-100 text-sm px-3 py-2.5 rounded-xl border border-black/10 dark:border-white/10 focus:outline-none focus:border-purple-500">
                     </div>
                 </div>
 
-                <div class="pt-3 flex justify-end space-x-2 border-t border-white/10">
-                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors">
+                <div class="pt-3 flex justify-end space-x-2 border-t border-black/10 dark:border-white/10">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
                         Cancelar
                     </button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-purple-900/40 transition-all">
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-md transition-all">
                         Guardar Tarefa
                     </button>
                 </div>
@@ -305,23 +358,23 @@
     </div>
 
     <!-- Extra Menu Dropdown Modal -->
-    <div id="extraMenuModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden" onclick="toggleExtraMenu()">
-        <div class="absolute top-16 right-4 glass-panel border border-white/10 rounded-2xl shadow-2xl p-2 w-60 text-xs font-medium space-y-1" onclick="event.stopPropagation()">
-            <button onclick="openAddColumnModal(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-slate-200 flex items-center space-x-2.5 transition-all">
-                <i class="fa-solid fa-columns text-purple-400 text-sm"></i>
+    <div id="extraMenuModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden" onclick="toggleExtraMenu()">
+        <div class="absolute top-16 right-4 glass-panel border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl p-2 w-60 text-xs font-medium space-y-1" onclick="event.stopPropagation()">
+            <button onclick="openAddColumnModal(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 flex items-center space-x-2.5 transition-all">
+                <i class="fa-solid fa-columns text-purple-500 text-sm"></i>
                 <span>Adicionar Coluna</span>
             </button>
-            <button onclick="exportData(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-slate-200 flex items-center space-x-2.5 transition-all">
-                <i class="fa-solid fa-download text-emerald-400 text-sm"></i>
+            <button onclick="exportData(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 flex items-center space-x-2.5 transition-all">
+                <i class="fa-solid fa-download text-emerald-500 text-sm"></i>
                 <span>Exportar Dados (JSON)</span>
             </button>
-            <label class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-slate-200 flex items-center space-x-2.5 cursor-pointer transition-all">
-                <i class="fa-solid fa-upload text-amber-400 text-sm"></i>
+            <label class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 flex items-center space-x-2.5 cursor-pointer transition-all">
+                <i class="fa-solid fa-upload text-amber-500 text-sm"></i>
                 <span>Importar Dados</span>
                 <input type="file" accept=".json" onchange="importData(event)" class="hidden">
             </label>
-            <div class="my-1 border-t border-white/10"></div>
-            <button onclick="resetBoard(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-red-500/10 text-red-400 flex items-center space-x-2.5 transition-all">
+            <div class="my-1 border-t border-black/10 dark:border-white/10"></div>
+            <button onclick="resetBoard(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-red-500/10 text-red-500 dark:text-red-400 flex items-center space-x-2.5 transition-all">
                 <i class="fa-solid fa-rotate-left text-sm"></i>
                 <span>Restaurar Padrões</span>
             </button>
@@ -329,31 +382,32 @@
     </div>
 
     <!-- Move Task Quick Select Modal -->
-    <div id="moveModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-panel border border-white/10 rounded-2xl w-full max-w-xs overflow-hidden shadow-2xl p-4 space-y-3">
-            <div class="flex items-center justify-center space-x-2 text-purple-300 font-bold text-sm">
+    <div id="moveModal" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel border border-black/10 dark:border-white/10 rounded-2xl w-full max-w-xs overflow-hidden shadow-2xl p-4 space-y-3">
+            <div class="flex items-center justify-center space-x-2 text-purple-600 dark:text-purple-300 font-bold text-sm">
                 <i class="fa-solid fa-paw"></i>
                 <h4>Mover Tarefa Para:</h4>
             </div>
             <div id="moveModalOptions" class="space-y-2">
                 <!-- Injected buttons -->
             </div>
-            <button onclick="closeMoveModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300 mt-2 transition-colors">
+            <button onclick="closeMoveModal()" class="w-full py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 mt-2 transition-colors">
                 Cancelar
             </button>
         </div>
     </div>
 
     <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-5 right-5 glass-panel border border-white/15 text-slate-100 px-4 py-3 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-3 text-xs font-semibold">
+    <div id="toast" class="fixed bottom-5 right-5 glass-panel border border-black/10 dark:border-white/15 text-slate-800 dark:text-slate-100 px-4 py-3 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-3 text-xs font-semibold">
         <div id="toastIconBg" class="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-            <i id="toastIcon" class="fa-solid fa-cat text-emerald-400 text-xs"></i>
+            <i id="toastIcon" class="fa-solid fa-cat text-emerald-500 dark:text-emerald-400 text-xs"></i>
         </div>
         <span id="toastMsg">Mensagem</span>
     </div>
 
     <!-- JavaScript Application Logic -->
     <script>
+        // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             const swContent = `
                 self.addEventListener('install', (e) => self.skipWaiting());
@@ -364,13 +418,12 @@
             `;
             const blob = new Blob([swContent], { type: 'text/javascript' });
             const swUrl = URL.createObjectURL(blob);
-            
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register(swUrl).catch(err => console.log('SW note:', err));
             });
         }
 
-        // PWA Installation Trigger Logic
+        // PWA Installation Trigger
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -383,9 +436,7 @@
             if (!deferredPrompt) return;
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                showToast('A instalar a aplicação...');
-            }
+            if (outcome === 'accepted') showToast('A instalar a aplicação...');
             deferredPrompt = null;
             const installBtn = document.getElementById('pwaInstallBtn');
             if (installBtn) installBtn.classList.add('hidden');
@@ -396,6 +447,75 @@
             if (installBtn) installBtn.classList.add('hidden');
             showToast('Tarefas instalada com sucesso! 🐾');
         });
+
+        // Theme Switcher Management (Light, Dark, Auto)
+        let currentThemeMode = localStorage.getItem('tarefas_theme_mode') || 'dark';
+
+        function applyTheme(mode) {
+            currentThemeMode = mode;
+            localStorage.setItem('tarefas_theme_mode', mode);
+
+            const isDark = (mode === 'dark') || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const htmlEl = document.documentElement;
+            const metaTheme = document.getElementById('metaThemeColor');
+
+            if (isDark) {
+                htmlEl.classList.add('dark');
+                if (metaTheme) metaTheme.setAttribute('content', '#090d16');
+            } else {
+                htmlEl.classList.remove('dark');
+                if (metaTheme) metaTheme.setAttribute('content', '#fdfaf6');
+            }
+
+            // Update Theme Buttons UI
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white', 'shadow-sm');
+                btn.classList.add('text-slate-500', 'hover:text-slate-900', 'dark:hover:text-white');
+            });
+            const activeBtn = document.getElementById(`theme-${mode}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-purple-600', 'text-white', 'shadow-sm');
+                activeBtn.classList.remove('text-slate-500', 'hover:text-slate-900', 'dark:hover:text-white');
+            }
+        }
+
+        function setTheme(mode) {
+            applyTheme(mode);
+            showToast(`Tema alterado para: ${mode === 'light' ? 'Claro ☀️' : mode === 'dark' ? 'Escuro 🌙' : 'Automático 💻'}`);
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentThemeMode === 'auto') applyTheme('auto');
+        });
+
+        // Interactive Cat Mascot Commentary Phrases (PT-PT)
+        const MASCOT_PHRASES = [
+            { icon: "🐱", text: "Miau! Pronto para organizar o teu dia?" },
+            { icon: "😸", text: "Procrastinar? Não com este gato por perto!" },
+            { icon: "🐾", text: "Arraste uma tarefa até ao topo!" },
+            { icon: "😺", text: "Orgulho em ti! Continua a focar!" },
+            { icon: "🐈", text: "A vigiar o teu progresso..." },
+            { icon: "✨", text: "Conclui tarefas para ganhar festinhas virtuais!" }
+        ];
+
+        function triggerMascotPhrase(customText = null, customIcon = null) {
+            const mascotText = document.getElementById('mascotText');
+            const mascotIcon = document.getElementById('mascotIcon');
+            const bubble = document.getElementById('mascotBubble');
+
+            if (customText) {
+                mascotText.innerText = customText;
+                mascotIcon.innerText = customIcon || "😸";
+            } else {
+                const random = MASCOT_PHRASES[Math.floor(Math.random() * MASCOT_PHRASES.length)];
+                mascotText.innerText = random.text;
+                mascotIcon.innerText = random.icon;
+            }
+
+            bubble.classList.remove('mascot-anim');
+            void bubble.offsetWidth; // trigger reflow
+            bubble.classList.add('mascot-anim');
+        }
 
         // Default Data State (PT-PT)
         const DEFAULT_DATA = {
@@ -410,7 +530,7 @@
                     id: 'task-1',
                     columnId: 'col-todo',
                     title: 'Ajustar paleta de cores do gato',
-                    desc: 'Garantir que os tons escuros de violeta e grafite destacam as ilustrações.',
+                    desc: 'Garantir que os tons claros e escuros destacam as ilustrações do companheiro.',
                     priority: 'alta',
                     dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
                     tag: 'Design'
@@ -427,7 +547,7 @@
                 {
                     id: 'task-3',
                     columnId: 'col-done',
-                    title: 'Instalação PWA no Edge',
+                    title: 'Instalação PWA no Edge e Chrome',
                     desc: 'Manifesto dinâmico e registo de Service Worker integrados.',
                     priority: 'baixa',
                     dueDate: '2026-03-20',
@@ -444,6 +564,7 @@
         let selectedTaskIdForMove = null;
 
         window.addEventListener('DOMContentLoaded', () => {
+            applyTheme(currentThemeMode);
             loadState();
             if (columns.length > 0) activeMobileTab = columns[0].id;
             renderBoard();
@@ -496,7 +617,7 @@
                 const isActive = col.id === activeMobileTab;
                 
                 tabBtn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-2 ${
-                    isActive ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-purple-900/30' : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-white/5'
+                    isActive ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-purple-900/30' : 'bg-slate-200/80 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-black/5 dark:border-white/5'
                 }`;
                 tabBtn.onclick = () => {
                     activeMobileTab = col.id;
@@ -505,12 +626,12 @@
                 tabBtn.innerHTML = `
                     <span class="w-2 h-2 rounded-full" style="background-color: ${col.color}"></span>
                     <span>${escapeHtml(col.title)}</span>
-                    <span class="px-1.5 py-0.2 bg-black/40 rounded-full text-[10px] text-slate-300 font-semibold">${colTasksCount}</span>
+                    <span class="px-1.5 py-0.2 bg-black/10 dark:bg-black/40 rounded-full text-[10px] text-slate-700 dark:text-slate-300 font-semibold">${colTasksCount}</span>
                 `;
                 mobileTabNav.appendChild(tabBtn);
             });
 
-            // Columns
+            // Columns Rendering
             columns.forEach(col => {
                 const colTasks = filteredTasks.filter(t => t.columnId === col.id);
                 const isHiddenOnMobile = col.id !== activeMobileTab;
@@ -525,31 +646,31 @@
 
                 // SVG Cat Illustrations for Empty States
                 const emptyCatSVG = `
-                    <div class="h-36 flex flex-col items-center justify-center text-slate-500/60 border-2 border-dashed border-white/5 rounded-2xl p-4 text-center my-auto transition-all">
-                        <svg class="w-12 h-12 mb-2 text-slate-600/60 cat-glow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <div class="h-40 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 border-2 border-dashed border-black/5 dark:border-white/5 rounded-2xl p-4 text-center my-auto transition-all">
+                        <svg class="w-12 h-12 mb-2 text-purple-500/50 dark:text-purple-400/50 mascot-anim" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18c-3.5 0-6-1.8-6-4.5 0-3 2.5-4.5 6-4.5s6 1.5 6 4.5c0 2.7-2.5 4.5-6 4.5zM8 8l-3-4 1-1 4 2M16 8l3-4-1-1-4 2M10 13a1 1 0 100-2 1 1 0 000 2zM14 13a1 1 0 100-2 1 1 0 000 2z"></path>
                         </svg>
-                        <span class="text-xs font-semibold tracking-wide text-slate-500">Sem tarefas nesta coluna</span>
-                        <span class="text-[10px] text-slate-600 mt-0.5">Tudo calmo por aqui... 🐾</span>
+                        <span class="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400">Sem tarefas nesta coluna</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Tudo calmo por aqui... 🐾</span>
                     </div>
                 `;
 
                 colEl.innerHTML = `
-                    <div class="p-3.5 border-b border-white/10 flex items-center justify-between shrink-0 bg-slate-900/40 rounded-t-2xl">
+                    <div class="p-3.5 border-b border-black/5 dark:border-white/10 flex items-center justify-between shrink-0 bg-slate-100/60 dark:bg-slate-900/40 rounded-t-2xl">
                         <div class="flex items-center space-x-2">
                             <span class="w-3 h-3 rounded-full shadow-sm" style="background-color: ${col.color}"></span>
-                            <h2 class="font-bold text-sm text-slate-200 tracking-wide">${escapeHtml(col.title)}</h2>
-                            <span class="bg-slate-800/80 text-slate-400 text-xs px-2 py-0.5 rounded-full font-semibold border border-white/5">${colTasks.length}</span>
+                            <h2 class="font-bold text-sm text-slate-800 dark:text-slate-200 tracking-wide">${escapeHtml(col.title)}</h2>
+                            <span class="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 rounded-full font-semibold border border-black/5 dark:border-white/5">${colTasks.length}</span>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="openTaskModal('${col.id}')" title="Adicionar Tarefa" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                            <button onclick="openTaskModal('${col.id}')" title="Adicionar Tarefa" class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                                 <i class="fa-solid fa-plus text-xs"></i>
                             </button>
-                            <button onclick="renameColumn('${col.id}')" title="Renomear Coluna" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                            <button onclick="renameColumn('${col.id}')" title="Renomear Coluna" class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                                 <i class="fa-solid fa-pen text-xs"></i>
                             </button>
                             ${columns.length > 1 ? `
-                                <button onclick="deleteColumn('${col.id}')" title="Eliminar Coluna" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                                <button onclick="deleteColumn('${col.id}')" title="Eliminar Coluna" class="text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                 </button>
                             ` : ''}
@@ -580,39 +701,39 @@
 
             let priorityBadge = '';
             if (task.priority === 'alta') {
-                priorityBadge = `<span class="bg-red-500/15 border border-red-500/30 text-red-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg flex items-center space-x-1"><i class="fa-solid fa-paw text-[9px] mr-1"></i>Alta</span>`;
+                priorityBadge = `<span class="bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg flex items-center space-x-1"><i class="fa-solid fa-paw text-[9px] mr-1"></i>Alta</span>`;
             } else if (task.priority === 'média') {
-                priorityBadge = `<span class="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg">Média</span>`;
+                priorityBadge = `<span class="bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg">Média</span>`;
             } else {
-                priorityBadge = `<span class="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg">Baixa</span>`;
+                priorityBadge = `<span class="bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2.5 py-0.5 rounded-lg">Baixa</span>`;
             }
 
             card.innerHTML = `
                 <div class="flex items-start justify-between gap-2 mb-2">
-                    <span class="font-bold text-slate-100 text-sm leading-snug break-words tracking-wide">${escapeHtml(task.title)}</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-snug break-words tracking-wide">${escapeHtml(task.title)}</span>
                     <div class="flex items-center space-x-1 shrink-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="openMoveModal('${task.id}')" title="Mover Coluna" class="text-slate-400 hover:text-purple-400 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                        <button onclick="openMoveModal('${task.id}')" title="Mover Coluna" class="text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                             <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
                         </button>
-                        <button onclick="editTask('${task.id}')" title="Editar" class="text-slate-400 hover:text-amber-400 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                        <button onclick="editTask('${task.id}')" title="Editar" class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                             <i class="fa-solid fa-pen-to-square text-xs"></i>
                         </button>
-                        <button onclick="deleteTask('${task.id}')" title="Eliminar" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                        <button onclick="deleteTask('${task.id}')" title="Eliminar" class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                ${task.desc ? `<p class="text-xs text-slate-400 mb-3.5 line-clamp-2 leading-relaxed font-normal">${escapeHtml(task.desc)}</p>` : '<div class="mb-2"></div>'}
+                ${task.desc ? `<p class="text-xs text-slate-500 dark:text-slate-400 mb-3.5 line-clamp-2 leading-relaxed font-normal">${escapeHtml(task.desc)}</p>` : '<div class="mb-2"></div>'}
 
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/5 text-xs">
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-black/5 dark:border-white/5 text-xs">
                     <div class="flex items-center space-x-1.5">
                         ${priorityBadge}
-                        ${task.tag ? `<span class="bg-slate-900/80 text-purple-300 text-[11px] font-medium px-2.5 py-0.5 rounded-lg border border-purple-500/20">${escapeHtml(task.tag)}</span>` : ''}
+                        ${task.tag ? `<span class="bg-slate-100 dark:bg-slate-900/80 text-purple-700 dark:text-purple-300 text-[11px] font-medium px-2.5 py-0.5 rounded-lg border border-purple-500/20">${escapeHtml(task.tag)}</span>` : ''}
                     </div>
 
                     ${task.dueDate ? `
-                        <div class="flex items-center text-[11px] font-semibold ${isOverdue(task.dueDate) ? 'text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20' : 'text-slate-400'}">
+                        <div class="flex items-center text-[11px] font-semibold ${isOverdue(task.dueDate) ? 'text-red-500 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20' : 'text-slate-400'}">
                             <i class="fa-regular fa-calendar-days mr-1 text-[10px]"></i>
                             <span>${formatDate(task.dueDate)}</span>
                         </div>
@@ -659,12 +780,14 @@
                 task.columnId = newColId;
                 saveState();
                 
-                // If moved to "Concluído", fire celebratory confetti particle effect!
+                // If moved to "Concluído", fire celebratory confetti particle effect & update mascot
                 const doneColumn = columns.find(c => c.title.toLowerCase().includes('conclu'));
                 if (doneColumn && newColId === doneColumn.id) {
                     triggerConfetti();
-                    showToast('Tarefa concluída com sucesso! 🐾🎉');
+                    triggerMascotPhrase('Miau! Mais uma tarefa concluída com sucesso! 🐾🎉', '😻');
+                    showToast('Tarefa concluída! 🐾🎉');
                 } else {
+                    triggerMascotPhrase('Tarefa movida para nova etapa! 🐾', '😸');
                     showToast('Tarefa movida com sucesso 🐾');
                 }
 
@@ -675,10 +798,10 @@
         function triggerConfetti() {
             if (typeof confetti === 'function') {
                 confetti({
-                    particleCount: 50,
-                    spread: 60,
+                    particleCount: 55,
+                    spread: 65,
                     origin: { y: 0.7 },
-                    colors: ['#a855f7', '#6366f1', '#ec4899', '#10b981']
+                    colors: ['#a855f7', '#6366f1', '#ec4899', '#10b981', '#f59e0b']
                 });
             }
         }
@@ -731,6 +854,7 @@
                     task.priority = priority;
                     task.dueDate = dueDate;
                     task.tag = tag;
+                    triggerMascotPhrase('Tarefa atualizada com sucesso! 🐾', '😸');
                     showToast('Tarefa atualizada 🐾');
                 }
             } else {
@@ -744,6 +868,7 @@
                     tag
                 };
                 tasks.push(newTask);
+                triggerMascotPhrase('Nova tarefa criada! Vamos a isto! 🐾', '😺');
                 showToast('Nova tarefa criada 🐾');
             }
 
@@ -772,6 +897,7 @@
                 tasks = tasks.filter(t => t.id !== id);
                 saveState();
                 renderBoard();
+                triggerMascotPhrase('Tarefa eliminada do quadro! 🐾', '😾');
                 showToast('Tarefa eliminada');
             }
         }
@@ -837,14 +963,14 @@
                 const isCurrent = task && task.columnId === col.id;
                 const btn = document.createElement('button');
                 btn.className = `w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold flex items-center justify-between border transition-all ${
-                    isCurrent ? 'bg-slate-900/40 border-white/5 text-slate-500 cursor-default' : 'glass-panel border-white/10 hover:border-purple-500/50 text-slate-200'
+                    isCurrent ? 'bg-slate-200/50 dark:bg-slate-900/40 border-black/5 dark:border-white/5 text-slate-400 cursor-default' : 'glass-panel border-black/10 dark:border-white/10 hover:border-purple-500/50 text-slate-700 dark:text-slate-200'
                 }`;
                 btn.innerHTML = `
                     <div class="flex items-center space-x-2">
                         <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${col.color}"></span>
                         <span>${escapeHtml(col.title)}</span>
                     </div>
-                    ${isCurrent ? '<span class="text-[10px] text-slate-500">(Atual)</span>' : '<i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>'}
+                    ${isCurrent ? '<span class="text-[10px] text-slate-400">(Atual)</span>' : '<i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>'}
                 `;
                 if (!isCurrent) {
                     btn.onclick = () => {
@@ -870,11 +996,11 @@
         function setPriorityFilter(priority) {
             currentFilter = priority;
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = 'filter-btn px-3 py-1.5 rounded-lg border border-white/5 bg-slate-900/60 text-slate-300 hover:border-white/20 transition-all';
+                btn.className = 'filter-btn px-3 py-1.5 rounded-lg border border-black/5 dark:border-white/5 bg-white/50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:border-black/20 dark:hover:border-white/20 transition-all';
             });
             const activeBtn = document.getElementById(`filter-${priority}`);
             if (activeBtn) {
-                activeBtn.className = 'filter-btn px-3 py-1.5 rounded-lg border border-purple-500/50 bg-purple-500/20 text-purple-200 font-semibold shadow-sm transition-all';
+                activeBtn.className = 'filter-btn px-3 py-1.5 rounded-lg border border-purple-500/50 bg-purple-500/20 text-purple-700 dark:text-purple-200 font-semibold shadow-sm transition-all';
             }
             renderBoard();
         }
