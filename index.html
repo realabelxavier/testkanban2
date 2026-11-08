@@ -373,6 +373,11 @@
                 <span>Importar Dados</span>
                 <input type="file" accept=".json" onchange="importData(event)" class="hidden">
             </label>
+            <button id="reminderToggleBtn" onclick="toggleReminders(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 flex items-center space-x-2.5 transition-all">
+                <i class="fa-solid fa-bell text-pink-500 text-sm"></i>
+                <span>Lembretes (a cada 2h)</span>
+                <span id="reminderStatus" class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-500 dark:text-slate-400">Desativados</span>
+            </button>
             <div class="my-1 border-t border-black/10 dark:border-white/10"></div>
             <button onclick="resetBoard(); toggleExtraMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl hover:bg-red-500/10 text-red-500 dark:text-red-400 flex items-center space-x-2.5 transition-all">
                 <i class="fa-solid fa-rotate-left text-sm"></i>
@@ -407,21 +412,40 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            const swContent = `
-                self.addEventListener('install', (e) => self.skipWaiting());
-                self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
-                self.addEventListener('fetch', (e) => {
-                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                });
-            `;
-            const blob = new Blob([swContent], { type: 'text/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW note:', err));
-            });
+        // PWA Service Worker Registration (sw.js em ficheiro real; necessário para notificações no Android)
+        async function registerServiceWorker() {
+            try {
+                await navigator.serviceWorker.register('sw.js');
+                return await navigator.serviceWorker.ready;
+            } catch (err) {
+                console.log('SW note:', err);
+            }
+            // Fallback ao comportamento original (Blob), caso o sw.js não esteja disponível
+            try {
+                const swContent = `
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                    });
+                `;
+                const blob = new Blob([swContent], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                await navigator.serviceWorker.register(swUrl);
+                return await navigator.serviceWorker.ready;
+            } catch (err) {
+                console.log('SW note:', err);
+                return null;
+            }
         }
+
+        const swReady = ('serviceWorker' in navigator)
+            ? new Promise((resolve) => {
+                const start = () => registerServiceWorker().then(resolve, () => resolve(null));
+                if (document.readyState === 'complete') start();
+                else window.addEventListener('load', start);
+            })
+            : Promise.resolve(null);
 
         // PWA Installation Trigger
         let deferredPrompt = null;
@@ -568,10 +592,12 @@
             loadState();
             if (columns.length > 0) activeMobileTab = columns[0].id;
             renderBoard();
+            initReminders();
         });
 
         function saveState() {
             localStorage.setItem('tarefas_kanban_cat_data', JSON.stringify({ columns, tasks }));
+            syncReminderState();
         }
 
         function loadState() {
@@ -1063,6 +1089,7 @@
                 loadState();
                 activeMobileTab = columns[0].id;
                 renderBoard();
+                syncReminderState();
                 showToast('Quadro restaurado');
             }
         }
@@ -1090,6 +1117,250 @@
             if (!dateStr) return false;
             const today = new Date().toISOString().split('T')[0];
             return dateStr < today;
+        }
+
+        // ============================================================
+        // Lembretes periódicos (a cada 2 horas) - Notificações Android
+        // Só notifica se existir pelo menos uma tarefa em "A Fazer" ou "Em Progresso".
+        // ============================================================
+        const REMINDER_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2 horas
+        const REMINDER_TAG = 'tarefas-reminder';
+        const LS_REMINDER_ENABLED = 'tarefas_reminders_enabled';
+        const LS_REMINDER_LAST = 'tarefas_reminder_last';
+        let reminderCheckRunning = false;
+
+        // IndexedDB (partilhada com o Service Worker para lembretes em segundo plano)
+        function idbOpen() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open('tarefas-reminders', 1);
+                req.onupgradeneeded = () => req.result.createObjectStore('kv');
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+        async function idbGet(key) {
+            const db = await idbOpen();
+            return new Promise((resolve, reject) => {
+                const q = db.transaction('kv', 'readonly').objectStore('kv').get(key);
+                q.onsuccess = () => { db.close(); resolve(q.result); };
+                q.onerror = () => { db.close(); reject(q.error); };
+            });
+        }
+        async function idbSet(key, value) {
+            const db = await idbOpen();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('kv', 'readwrite');
+                tx.objectStore('kv').put(value, key);
+                tx.oncomplete = () => { db.close(); resolve(); };
+                tx.onerror = () => { db.close(); reject(tx.error); };
+            });
+        }
+
+        function remindersEnabled() {
+            return localStorage.getItem(LS_REMINDER_ENABLED) === '1';
+        }
+
+        function normalizeText(text) {
+            return String(text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+        }
+
+        // Colunas "abertas": A Fazer e Em Progresso (por id original ou pelo nome, caso tenham sido renomeadas)
+        function isOpenColumn(col) {
+            if (!col) return false;
+            const title = normalizeText(col.title);
+            if (title.includes('conclu')) return false;
+            return col.id === 'col-todo' || col.id === 'col-progress' ||
+                   title.includes('a fazer') || title.includes('progresso');
+        }
+
+        function getOpenTasks() {
+            const openIds = new Set(columns.filter(isOpenColumn).map(c => c.id));
+            const prio = { 'alta': 0, 'média': 1, 'baixa': 2 };
+            return tasks
+                .filter(t => openIds.has(t.columnId))
+                .sort((a, b) => (prio[a.priority] ?? 1) - (prio[b.priority] ?? 1));
+        }
+
+        function getReminderSnapshot() {
+            const open = getOpenTasks();
+            return {
+                enabled: remindersEnabled(),
+                openCount: open.length,
+                titles: open.slice(0, 3).map(t => {
+                    const title = String(t.title || '(sem título)');
+                    return title.length > 80 ? title.slice(0, 77) + '…' : title;
+                })
+            };
+        }
+
+        function syncReminderState() {
+            try {
+                idbSet('state', getReminderSnapshot()).catch(() => {});
+            } catch (e) { /* silencioso */ }
+        }
+
+        function setLastReminder(ts) {
+            localStorage.setItem(LS_REMINDER_LAST, String(ts));
+            try { idbSet('last', ts).catch(() => {}); } catch (e) { /* silencioso */ }
+        }
+
+        async function getLastReminder() {
+            let last = Number(localStorage.getItem(LS_REMINDER_LAST)) || 0;
+            try {
+                const fromDb = Number(await idbGet('last')) || 0; // o SW pode ter notificado entretanto
+                if (fromDb > last) {
+                    last = fromDb;
+                    localStorage.setItem(LS_REMINDER_LAST, String(last));
+                }
+            } catch (e) { /* silencioso */ }
+            return last;
+        }
+
+        function updateReminderUI() {
+            const el = document.getElementById('reminderStatus');
+            if (!el) return;
+            const granted = ('Notification' in window) && Notification.permission === 'granted';
+            const active = remindersEnabled() && granted;
+            el.textContent = active ? 'Ativos' : 'Desativados';
+            el.className = 'ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full ' + (active
+                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                : 'bg-slate-500/15 text-slate-500 dark:text-slate-400');
+        }
+
+        // No Android é obrigatório usar registration.showNotification (new Notification() falha)
+        async function displayNotification(title, options) {
+            const reg = await swReady;
+            if (reg && typeof reg.showNotification === 'function') {
+                try {
+                    await reg.showNotification(title, options);
+                    return true;
+                } catch (e) { console.log('Notification note:', e); }
+            }
+            try {
+                const n = new Notification(title, options);
+                n.onclick = () => { window.focus(); n.close(); };
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function sendTaskReminder() {
+            const snap = getReminderSnapshot();
+            if (snap.openCount === 0) return false;
+            let body = snap.titles.map(t => '• ' + t).join('\n');
+            if (snap.openCount > snap.titles.length) body += '\n… e mais ' + (snap.openCount - snap.titles.length);
+            const title = '🐾 ' + (snap.openCount === 1 ? 'Tens 1 tarefa em aberto' : 'Tens ' + snap.openCount + ' tarefas em aberto');
+            return displayNotification(title, {
+                body,
+                tag: REMINDER_TAG,
+                renotify: true,
+                vibrate: [200, 100, 200],
+                data: { url: window.location.href }
+            });
+        }
+
+        async function checkReminders() {
+            if (reminderCheckRunning) return;
+            if (!remindersEnabled()) return;
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            reminderCheckRunning = true;
+            try {
+                const now = Date.now();
+                let last = await getLastReminder();
+
+                // Sem tarefas em aberto: não notifica e reinicia a contagem das 2 horas
+                if (getOpenTasks().length === 0) {
+                    setLastReminder(now);
+                    return;
+                }
+                if (!last || last > now) { // sem registo ou relógio alterado
+                    setLastReminder(now);
+                    return;
+                }
+                if (now - last >= REMINDER_INTERVAL_MS) {
+                    const ok = await sendTaskReminder();
+                    if (ok) setLastReminder(now);
+                }
+            } finally {
+                reminderCheckRunning = false;
+            }
+        }
+
+        async function setPeriodicSync(enable) {
+            try {
+                const reg = await swReady;
+                if (!reg || !('periodicSync' in reg)) return;
+                if (enable) {
+                    const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+                    if (status.state === 'granted') {
+                        await reg.periodicSync.register(REMINDER_TAG, { minInterval: REMINDER_INTERVAL_MS });
+                    }
+                } else {
+                    await reg.periodicSync.unregister(REMINDER_TAG);
+                }
+            } catch (e) { /* não suportado: segue só com os lembretes com a app aberta */ }
+        }
+
+        async function toggleReminders() {
+            // Desativar
+            if (remindersEnabled()) {
+                localStorage.setItem(LS_REMINDER_ENABLED, '0');
+                syncReminderState();
+                setPeriodicSync(false);
+                updateReminderUI();
+                showToast('Lembretes desativados');
+                return;
+            }
+
+            // Ativar (o pedido de permissão tem de acontecer logo após o toque do utilizador)
+            if (!('Notification' in window)) {
+                showToast('Este navegador não suporta notificações');
+                return;
+            }
+            let permission = Notification.permission;
+            if (permission === 'denied') {
+                showToast('Notificações bloqueadas nas definições do navegador');
+                updateReminderUI();
+                return;
+            }
+            if (permission === 'default') {
+                permission = await Notification.requestPermission();
+            }
+            if (permission !== 'granted') {
+                showToast('Permissão de notificações não concedida');
+                updateReminderUI();
+                return;
+            }
+
+            localStorage.setItem(LS_REMINDER_ENABLED, '1');
+            setLastReminder(Date.now());
+            syncReminderState();
+            updateReminderUI();
+            setPeriodicSync(true);
+
+            const ok = await displayNotification('🐾 Lembretes ativados', {
+                body: 'Vais receber um aviso a cada 2 horas enquanto houver tarefas em "A Fazer" ou "Em Progresso".',
+                tag: 'tarefas-reminder-info',
+                data: { url: window.location.href }
+            });
+            showToast(ok ? 'Lembretes ativados 🐾' : 'Não foi possível mostrar notificações neste dispositivo');
+        }
+
+        function initReminders() {
+            updateReminderUI();
+            syncReminderState();
+            if (remindersEnabled()) setPeriodicSync(true);
+            checkReminders();
+            setInterval(checkReminders, 10 * 60 * 1000);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    updateReminderUI();
+                    checkReminders();
+                }
+            });
+            window.addEventListener('focus', checkReminders);
+            window.addEventListener('pageshow', checkReminders);
         }
 
         function escapeHtml(text) {
